@@ -51,9 +51,11 @@ jobs:
 
       - name: Configure Signing & Secrets
         run: |
+          mkdir -p TMessagesProj_App
           echo "${{ secrets.KEYSTORE_JKS }}" | base64 --decode > keystore.jks
-          cat > local.properties << 'EOF'
-          storeFile=keystore.jks
+          cp keystore.jks TMessagesProj_App/keystore.jks
+          cat > local.properties << EOF
+          storeFile=${{ github.workspace }}/keystore.jks
           storePassword=${{ secrets.KEYSTORE_PASSWORD }}
           keyAlias=${{ secrets.KEY_ALIAS }}
           keyPassword=${{ secrets.KEY_PASSWORD }}
@@ -64,8 +66,9 @@ jobs:
           helperBotUsername=""
           mapsApiKey=""
           EOF
-          mkdir -p TMessagesProj_App
+          cp local.properties TMessagesProj_App/local.properties
           echo "ewogICJwcm9qZWN0X2luZm8iOiB7CiAgICAicHJvamVjdF9udW1iZXIiOiAiMTIzNDU2Nzg5MDEyIiwKICAgICJwcm9qZWN0X2lkIjogIm5la29ncmFtLWZvbGQiLAogICAgInN0b3JhZ2VfYnVja2V0IjogIm5la29ncmFtLWZvbGQuYXBwc3BvdC5jb20iCiAgfSwKICAiY2xpZW50IjogWwogICAgewogICAgICAiY2xpZW50X2luZm8iOiB7CiAgICAgICAgIm1vYmlsZXNka19hcHBfaWQiOiAiMToxMjM0NTY3ODkwMTI6YW5kcm9pZDphYmNkZWYxMjM0NTY3ODkwIiwKICAgICAgICAiYW5kcm9pZF9jbGllbnRfaW5mbyI6IHsKICAgICAgICAgICJwYWNrYWdlX25hbWUiOiAidHcubmVrb21pbWkubmVrb2dyYW0iCiAgICAgICAgfQogICAgICB9LAogICAgICAib2F1dGhfY2xpZW50IjogW10sCiAgICAgICJhcGlfa2V5IjogWwogICAgICAgIHsKICAgICAgICAgICJjdXJyZW50X2tleSI6ICJkdW1teV9rZXlfZm9yX2J1aWxkIgogICAgICAgIH0KICAgICAgXSwKICAgICAgInNlcnZpY2VzIjogewogICAgICAgICJhcHBpbnZpdGVfc2VydmljZSI6IHsKICAgICAgICAgICJvdGhlcl9wbGF0Zm9ybV9vYXV0aF9jbGllbnQiOiBbXQogICAgICAgIH0KICAgICAgfQogICAgfQogIF0sCiAgImNvbmZpZ3VyYXRpb25fdmVyc2lvbiI6ICIxIgp9" | base64 -d > TMessagesProj_App/google-services.json
+          echo "ewogICJwcm9qZWN0X2luZm8iOiB7CiAgICAicHJvamVjdF9udW1iZXIiOiAiMTIzNDU2Nzg5MDEyIiwKICAgICJwcm9qZWN0X2lkIjogIm5la29ncmFtLWZvbGQiLAogICAgInN0b3JhZ2VfYnVja2V0IjogIm5la29ncmFtLWZvbGQuYXBwc3BvdC5jb20iCiAgfSwKICAiY2xpZW50IjogWwogICAgewogICAgICAiY2xpZW50X2luZm8iOiB7CiAgICAgICAgIm1vYmlsZXNka19hcHBfaWQiOiAiMToxMjM0NTY3ODkwMTI6YW5kcm9pZDphYmNkZWYxMjM0NTY3ODkwIiwKICAgICAgICAiYW5kcm9pZF9jbGllbnRfaW5mbyI6IHsKICAgICAgICAgICJwYWNrYWdlX25hbWUiOiAidHcubmVrb21pbWkubmVrb2dyYW0iCiAgICAgICAgfQogICAgICB9LAogICAgICAib2F1dGhfY2xpZW50IjogW10sCiAgICAgICJhcGlfa2V5IjogWwogICAgICAgIHsKICAgICAgICAgICJjdXJyZW50X2tleSI6ICJkdW1teV9rZXlfZm9yX2J1aWxkIgogICAgICAgIH0KICAgICAgXSwKICAgICAgInNlcnZpY2VzIjogewogICAgICAgICJhcHBpbnZpdGVfc2VydmljZSI6IHsKICAgICAgICAgICJvdGhlcl9wbGF0Zm9ybV9vYXV0aF9jbGllbnQiOiBbXQogICAgICAgIH0KICAgICAgfQogICAgfQogIF0sCiAgImNvbmZpZ3VyYXRpb25fdmVyc2lvbiI6ICIxIgp9" | base64 -d > google-services.json
           echo "" > sentry.properties
 
       - name: Build APK (Release)
