@@ -65,7 +65,37 @@ jobs:
           mapsApiKey=""
           EOF
           mkdir -p TMessagesProj_App
-          echo "{}" > TMessagesProj_App/google-services.json
+          cat > TMessagesProj_App/google-services.json << 'EOF'
+{
+  "project_info": {
+    "project_number": "123456789012",
+    "project_id": "nekogram-fold",
+    "storage_bucket": "nekogram-fold.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:123456789012:android:abcdef1234567890",
+        "android_client_info": {
+          "package_name": "tw.nekomimi.nekogram"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "dummy_key_for_build"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
+EOF
           echo "" > sentry.properties
 
       - name: Build APK (Release)
