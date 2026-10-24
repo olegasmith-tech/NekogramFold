@@ -19,7 +19,6 @@ jobs:
           sudo rm -rf /usr/share/dotnet
           sudo rm -rf /opt/ghc
           sudo rm -rf "/usr/local/share/boost"
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
 
       - name: Checkout with submodules
         uses: actions/checkout@v4
@@ -39,16 +38,16 @@ jobs:
           cache-read-only: false
 
       - name: Set up Android SDK
-        uses: android-actions/setup-android@v3
+        uses: android-actions/setup-android@v4
         with:
-          packages: "build-tools;37.0.0 ndk;27.3.13750724 platforms;android-37 cmake;3.22.1"
+          packages: "build-tools;37.0.0 ndk;27.3.13750724 platforms;android-37.0 cmake;3.22.1"
 
       - name: Configure Gradle
         run: |
           mkdir -p ~/.gradle
           echo 'org.gradle.caching=true' >> ~/.gradle/gradle.properties
           echo 'org.gradle.parallel=true' >> ~/.gradle/gradle.properties
-          echo 'org.gradle.jvmargs=-Xmx6g -Dfile.encoding=UTF-8 -XX:+UseParallelGC' >> ~/.gradle/gradle.properties
+          echo 'org.gradle.jvmargs=-Xmx4g -Dfile.encoding=UTF-8 -XX:+UseParallelGC' >> ~/.gradle/gradle.properties
 
       - name: Configure Signing & Secrets
         run: |
@@ -69,7 +68,7 @@ jobs:
           echo "{}" > TMessagesProj_App/google-services.json
           echo "" > sentry.properties
 
-      - name: Build APK (arm64-v8a & universal)
+      - name: Build APK (Release)
         run: |
           ./gradlew assembleRelease --stacktrace
 
