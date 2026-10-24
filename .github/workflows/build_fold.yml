@@ -65,37 +65,7 @@ jobs:
           mapsApiKey=""
           EOF
           mkdir -p TMessagesProj_App
-          cat > TMessagesProj_App/google-services.json << 'EOF'
-{
-  "project_info": {
-    "project_number": "123456789012",
-    "project_id": "nekogram-fold",
-    "storage_bucket": "nekogram-fold.appspot.com"
-  },
-  "client": [
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:123456789012:android:abcdef1234567890",
-        "android_client_info": {
-          "package_name": "tw.nekomimi.nekogram"
-        }
-      },
-      "oauth_client": [],
-      "api_key": [
-        {
-          "current_key": "dummy_key_for_build"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": []
-        }
-      }
-    }
-  ],
-  "configuration_version": "1"
-}
-EOF
+          echo "ewogICJwcm9qZWN0X2luZm8iOiB7CiAgICAicHJvamVjdF9udW1iZXIiOiAiMTIzNDU2Nzg5MDEyIiwKICAgICJwcm9qZWN0X2lkIjogIm5la29ncmFtLWZvbGQiLAogICAgInN0b3JhZ2VfYnVja2V0IjogIm5la29ncmFtLWZvbGQuYXBwc3BvdC5jb20iCiAgfSwKICAiY2xpZW50IjogWwogICAgewogICAgICAiY2xpZW50X2luZm8iOiB7CiAgICAgICAgIm1vYmlsZXNka19hcHBfaWQiOiAiMToxMjM0NTY3ODkwMTI6YW5kcm9pZDphYmNkZWYxMjM0NTY3ODkwIiwKICAgICAgICAiYW5kcm9pZF9jbGllbnRfaW5mbyI6IHsKICAgICAgICAgICJwYWNrYWdlX25hbWUiOiAidHcubmVrb21pbWkubmVrb2dyYW0iCiAgICAgICAgfQogICAgICB9LAogICAgICAib2F1dGhfY2xpZW50IjogW10sCiAgICAgICJhcGlfa2V5IjogWwogICAgICAgIHsKICAgICAgICAgICJjdXJyZW50X2tleSI6ICJkdW1teV9rZXlfZm9yX2J1aWxkIgogICAgICAgIH0KICAgICAgXSwKICAgICAgInNlcnZpY2VzIjogewogICAgICAgICJhcHBpbnZpdGVfc2VydmljZSI6IHsKICAgICAgICAgICJvdGhlcl9wbGF0Zm9ybV9vYXV0aF9jbGllbnQiOiBbXQogICAgICAgIH0KICAgICAgfQogICAgfQogIF0sCiAgImNvbmZpZ3VyYXRpb25fdmVyc2lvbiI6ICIxIgp9" | base64 -d > TMessagesProj_App/google-services.json
           echo "" > sentry.properties
 
       - name: Build APK (Release)
