@@ -20,7 +20,6 @@ import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.LocaleController;
 import org.telegram.messenger.MessagesController;
 import org.telegram.messenger.R;
-import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.Theme;
 
 import java.util.ArrayList;
@@ -91,16 +90,16 @@ public class FolderNavigationRail extends FrameLayout {
     /**
      * Update the folder list. Call whenever MessagesController.dialogFilters changes.
      */
-    public void setFolders(ArrayList<TLRPC.TL_dialogFilter> filters) {
+    public void setFolders(ArrayList<MessagesController.DialogFilter> filters) {
         items.clear();
 
         // "All chats" is always first
         String allChatsLabel = LocaleController.getString("FilterAllChats", R.string.FilterAllChats);
-        items.add(new FolderItem(0, allChatsLabel, R.drawable.msg_all_chats));
+        items.add(new FolderItem(0, allChatsLabel, R.drawable.filter_all));
 
         if (filters != null) {
-            for (TLRPC.TL_dialogFilter f : filters) {
-                items.add(new FolderItem(f.id, f.title, pickIcon(f)));
+            for (MessagesController.DialogFilter f : filters) {
+                items.add(new FolderItem(f.id, f.name, pickIcon(f)));
             }
         }
         adapter.notifyDataSetChanged();
@@ -139,17 +138,17 @@ public class FolderNavigationRail extends FrameLayout {
         return -1;
     }
 
-    private int pickIcon(TLRPC.TL_dialogFilter f) {
+    private int pickIcon(MessagesController.DialogFilter f) {
         // Use emoticon-based icons where possible; fall back to generic
         if (f.emoticon != null && !f.emoticon.isEmpty()) {
-            return R.drawable.msg_folders; // emoji rendered separately if needed
+            return R.drawable.filter_custom; // emoji rendered separately if needed
         }
-        String t = f.title.toLowerCase();
-        if (t.contains("work")  || t.contains("работа"))    return R.drawable.msg_briefcase;
-        if (t.contains("unmuted") || t.contains("unmute"))   return R.drawable.msg_unmute;
-        if (t.contains("unread") || t.contains("непрочит"))  return R.drawable.msg_unread;
-        if (t.contains("personal") || t.contains("личн"))    return R.drawable.msg_contacts;
-        return R.drawable.msg_folders;
+        String t = f.name != null ? f.name.toLowerCase() : "";
+        if (t.contains("work")  || t.contains("работа"))    return R.drawable.filter_work;
+        if (t.contains("unmuted") || t.contains("unmute"))   return R.drawable.filter_unmuted;
+        if (t.contains("unread") || t.contains("непрочит"))  return R.drawable.filter_unread;
+        if (t.contains("personal") || t.contains("личн"))    return R.drawable.filter_private;
+        return R.drawable.filter_custom;
     }
 
     // ═════════════════════════════════════════════════════════════════════════

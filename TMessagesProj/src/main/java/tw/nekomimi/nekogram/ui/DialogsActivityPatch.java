@@ -7,11 +7,9 @@ import android.widget.LinearLayout;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.MessagesController;
-import org.telegram.tgnet.TLRPC;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.FilterTabsView;
 import org.telegram.ui.Components.FolderNavigationRail;
-import org.telegram.ui.DialogsActivity;
 
 import java.util.ArrayList;
 
@@ -106,7 +104,7 @@ public class DialogsActivityPatch {
     /** Sync folder list from MessagesController. Call on NOTIFICATION_ID_DIALOG_FILTERS_UPDATED. */
     public void refreshFolders() {
         if (folderRail == null) return;
-        ArrayList<TLRPC.TL_dialogFilter> filters =
+        ArrayList<MessagesController.DialogFilter> filters =
                 MessagesController.getInstance(currentAccount).dialogFilters;
         folderRail.setFolders(filters);
     }
