@@ -1,9 +1,10 @@
 package tw.nekomimi.nekogram.ui;
 
 import android.content.Context;
+import android.view.Gravity;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
 
 import org.telegram.messenger.AndroidUtilities;
 import org.telegram.messenger.MessagesController;
@@ -18,17 +19,11 @@ import static org.telegram.messenger.AndroidUtilities.dp;
 /**
  * Extension helper for DialogsActivity.
  * Manages the vertical folder rail for wide/foldable screens.
- *
- * Usage in DialogsActivity.createView():
- *   patch = new DialogsActivityPatch(this, currentAccount, resourcesProvider);
- *   if (patch.isRailEnabled()) {
- *       patch.buildRailLayout(contentView, viewPages, filterTabsView);
- *   }
  */
 public class DialogsActivityPatch {
 
     /** Min screen width (dp) to activate vertical rail instead of top tabs. */
-    private static final int MIN_RAIL_WIDTH_DP = 600;
+    public static final int MIN_RAIL_WIDTH_DP = 600;
 
     private final Context context;
     private final int currentAccount;
@@ -41,67 +36,61 @@ public class DialogsActivityPatch {
         this.context           = ctx;
         this.currentAccount    = account;
         this.resourcesProvider = rp;
-        this.railEnabled       = AndroidUtilities.displaySize.x
-                                 >= dp(MIN_RAIL_WIDTH_DP)
+        this.railEnabled       = AndroidUtilities.displaySize.x >= dp(MIN_RAIL_WIDTH_DP)
                                  || AndroidUtilities.isTablet();
     }
 
-    /** Returns true if vertical rail should be used (wide/foldable screen). */
     public boolean isRailEnabled() {
         return railEnabled;
     }
 
-    /**
-     * Rebuilds the dialog screen layout to include the vertical folder rail.
-     *
-     * @param contentView    Root SizeNotifierFrameLayout of DialogsActivity
-     * @param viewPages      Array of ViewPage (chat list pages)
-     * @param filterTabsView Existing horizontal FilterTabsView (will be hidden)
-     * @param listener       Callback when user taps a folder
-     */
     public void buildRailLayout(
             FrameLayout contentView,
             View[] viewPages,
+            View actionBar,
             FilterTabsView filterTabsView,
             FolderNavigationRail.FolderListener listener
     ) {
-        // Hide horizontal tabs — we replace them with the vertical rail
+        if (!railEnabled || contentView == null) {
+            return;
+        }
+
+        // Hide horizontal tabs — replaced by vertical rail
         if (filterTabsView != null) {
             filterTabsView.setVisibility(View.GONE);
         }
 
-        // Horizontal container: [72dp rail] + [rest of screen]
-        LinearLayout row = new LinearLayout(context);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-
-        // Build the rail
+        // Create rail
         folderRail = new FolderNavigationRail(context, currentAccount, resourcesProvider);
         folderRail.setFolderListener(listener);
-        row.addView(folderRail, new LinearLayout.LayoutParams(dp(72),
-                LinearLayout.LayoutParams.MATCH_PARENT));
 
-        // Wrap all viewPages into a FrameLayout (right side)
-        FrameLayout listContainer = new FrameLayout(context);
-        for (View vp : viewPages) {
-            if (vp.getParent() != null) {
-                ((android.view.ViewGroup) vp.getParent()).removeView(vp);
-            }
-            listContainer.addView(vp, new FrameLayout.LayoutParams(
-                    FrameLayout.LayoutParams.MATCH_PARENT,
-                    FrameLayout.LayoutParams.MATCH_PARENT));
-        }
-        row.addView(listContainer, new LinearLayout.LayoutParams(
-                0, LinearLayout.LayoutParams.MATCH_PARENT, 1f));
-
-        contentView.addView(row, 0, new FrameLayout.LayoutParams(
+        FrameLayout.LayoutParams railParams = new FrameLayout.LayoutParams(
+                dp(72),
                 FrameLayout.LayoutParams.MATCH_PARENT,
-                FrameLayout.LayoutParams.MATCH_PARENT));
+                Gravity.LEFT | Gravity.TOP
+        );
+        contentView.addView(folderRail, railParams);
 
-        // Initial folder list
+        // Shift viewPages to the right by 72dp
+        if (viewPages != null) {
+            for (View vp : viewPages) {
+                if (vp != null && vp.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+                    ((ViewGroup.MarginLayoutParams) vp.getLayoutParams()).leftMargin = dp(72);
+                    vp.requestLayout();
+                }
+            }
+        }
+
+        // Shift actionBar to the right by 72dp
+        if (actionBar != null && actionBar.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+            ((ViewGroup.MarginLayoutParams) actionBar.getLayoutParams()).leftMargin = dp(72);
+            actionBar.requestLayout();
+        }
+
+        // Populate initial folders
         refreshFolders();
     }
 
-    /** Sync folder list from MessagesController. Call on NOTIFICATION_ID_DIALOG_FILTERS_UPDATED. */
     public void refreshFolders() {
         if (folderRail == null) return;
         ArrayList<MessagesController.DialogFilter> filters =
@@ -109,9 +98,10 @@ public class DialogsActivityPatch {
         folderRail.setFolders(filters);
     }
 
-    /** Update selected folder highlight. */
     public void setSelectedFilter(int filterId) {
-        if (folderRail != null) folderRail.setSelectedFilter(filterId);
+        if (folderRail != null) {
+            folderRail.setSelectedFilter(filterId);
+        }
     }
 
     public FolderNavigationRail getFolderRail() {

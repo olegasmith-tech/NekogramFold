@@ -532,6 +532,7 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
     private int undoViewIndex;
     private UndoView[] undoView = new UndoView[2];
     private FilterTabsView filterTabsView;
+    private tw.nekomimi.nekogram.ui.DialogsActivityPatch dialogsPatch;
     private boolean askingForPermissions;
     private int searchViewPagerIndex;
     @Nullable
@@ -3686,6 +3687,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
                         checkListLoad(viewPages[0]);
                         viewPages[0].dialogsAdapter.resume();
                         viewPages[1].dialogsAdapter.pause();
+                        if (dialogsPatch != null) {
+                            dialogsPatch.setSelectedFilter(viewPages[0].selectedType);
+                        }
                     }
                 }
 
@@ -5716,6 +5720,14 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         checkUi_mainTabsVisible();
         checkUi_forwardCommentFieldVisible();
         checkUi_searchFieldStyle();
+
+        dialogsPatch = new tw.nekomimi.nekogram.ui.DialogsActivityPatch(context, currentAccount, resourceProvider);
+        if (dialogsPatch.isRailEnabled()) {
+            dialogsPatch.buildRailLayout(contentView, viewPages, actionBar, filterTabsView, filterId -> {
+                scrollToFolder(filterId);
+                dialogsPatch.setSelectedFilter(filterId);
+            });
+        }
 
         ViewCompat.setOnApplyWindowInsetsListener(fragmentView, this::onApplyWindowInsets);
         return fragmentView;
@@ -10507,6 +10519,12 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         if (filterOptions != null) {
             filterOptions.dismiss();
         }
+        if (getParentActivity() != null && dialogsPatch != null) {
+            boolean shouldEnable = AndroidUtilities.displaySize.x >= AndroidUtilities.dp(600) || AndroidUtilities.isTablet();
+            if (dialogsPatch.isRailEnabled() != shouldEnable) {
+                getParentActivity().recreate();
+            }
+        }
     }
 
     @Override
@@ -10829,6 +10847,9 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
             }
         } else if (id == NotificationCenter.dialogFiltersUpdated) {
             updateFilterTabs(true, true);
+            if (dialogsPatch != null) {
+                dialogsPatch.refreshFolders();
+            }
         } else if (id == NotificationCenter.filterSettingsUpdated) {
             showFiltersHint();
         } else if (id == NotificationCenter.newSuggestionsAvailable) {

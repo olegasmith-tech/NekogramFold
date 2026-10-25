@@ -99,6 +99,7 @@ public class FolderNavigationRail extends FrameLayout {
 
         if (filters != null) {
             for (MessagesController.DialogFilter f : filters) {
+                if (f.isDefault()) continue;
                 items.add(new FolderItem(f.id, f.name, pickIcon(f)));
             }
         }
