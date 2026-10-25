@@ -74,7 +74,7 @@ jobs:
 
       - name: Build APK (Release)
         run: |
-          ./gradlew assembleRelease -x uploadSentryProguardMappingsRelease -x uploadSentryNativeSymbolsForRelease -x sentryBundleSourcesRelease -x sentryCollectSourcesRelease --stacktrace
+          ./gradlew assembleRelease --stacktrace
 
       - name: Find Release APK
         id: find_apk
