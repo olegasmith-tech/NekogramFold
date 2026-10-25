@@ -5721,12 +5721,16 @@ public class DialogsActivity extends BaseFragment implements NotificationCenter.
         checkUi_forwardCommentFieldVisible();
         checkUi_searchFieldStyle();
 
-        dialogsPatch = new tw.nekomimi.nekogram.ui.DialogsActivityPatch(context, currentAccount, resourceProvider);
-        if (dialogsPatch.isRailEnabled()) {
-            dialogsPatch.buildRailLayout(contentView, viewPages, actionBar, filterTabsView, filterId -> {
-                scrollToFolder(filterId);
-                dialogsPatch.setSelectedFilter(filterId);
-            });
+        try {
+            dialogsPatch = new tw.nekomimi.nekogram.ui.DialogsActivityPatch(context, currentAccount, resourceProvider);
+            if (dialogsPatch.isRailEnabled()) {
+                dialogsPatch.buildRailLayout(contentView, viewPages, actionBar, filterTabsView, filterId -> {
+                    scrollToFolder(filterId);
+                    dialogsPatch.setSelectedFilter(filterId);
+                });
+            }
+        } catch (Throwable t) {
+            FileLog.e(t);
         }
 
         ViewCompat.setOnApplyWindowInsetsListener(fragmentView, this::onApplyWindowInsets);

@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.FrameLayout;
 
 import org.telegram.messenger.AndroidUtilities;
+import org.telegram.messenger.FileLog;
 import org.telegram.messenger.MessagesController;
 import org.telegram.ui.ActionBar.Theme;
 import org.telegram.ui.Components.FilterTabsView;
@@ -36,8 +37,14 @@ public class DialogsActivityPatch {
         this.context           = ctx;
         this.currentAccount    = account;
         this.resourcesProvider = rp;
-        this.railEnabled       = AndroidUtilities.displaySize.x >= dp(MIN_RAIL_WIDTH_DP)
-                                 || AndroidUtilities.isTablet();
+        boolean enabled = false;
+        try {
+            enabled = AndroidUtilities.displaySize.x >= dp(MIN_RAIL_WIDTH_DP)
+                      || AndroidUtilities.isTablet();
+        } catch (Throwable t) {
+            FileLog.e(t);
+        }
+        this.railEnabled = enabled;
     }
 
     public boolean isRailEnabled() {
@@ -55,52 +62,64 @@ public class DialogsActivityPatch {
             return;
         }
 
-        // Hide horizontal tabs — replaced by vertical rail
-        if (filterTabsView != null) {
-            filterTabsView.setVisibility(View.GONE);
-        }
+        try {
+            // Hide horizontal tabs — replaced by vertical rail
+            if (filterTabsView != null) {
+                filterTabsView.setVisibility(View.GONE);
+            }
 
-        // Create rail
-        folderRail = new FolderNavigationRail(context, currentAccount, resourcesProvider);
-        folderRail.setFolderListener(listener);
+            // Create rail
+            folderRail = new FolderNavigationRail(context, currentAccount, resourcesProvider);
+            folderRail.setFolderListener(listener);
 
-        FrameLayout.LayoutParams railParams = new FrameLayout.LayoutParams(
-                dp(72),
-                FrameLayout.LayoutParams.MATCH_PARENT,
-                Gravity.LEFT | Gravity.TOP
-        );
-        contentView.addView(folderRail, railParams);
+            FrameLayout.LayoutParams railParams = new FrameLayout.LayoutParams(
+                    dp(72),
+                    FrameLayout.LayoutParams.MATCH_PARENT,
+                    Gravity.LEFT | Gravity.TOP
+            );
+            contentView.addView(folderRail, railParams);
 
-        // Shift viewPages to the right by 72dp
-        if (viewPages != null) {
-            for (View vp : viewPages) {
-                if (vp != null && vp.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-                    ((ViewGroup.MarginLayoutParams) vp.getLayoutParams()).leftMargin = dp(72);
-                    vp.requestLayout();
+            // Shift viewPages to the right by 72dp
+            if (viewPages != null) {
+                for (View vp : viewPages) {
+                    if (vp != null && vp.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+                        ((ViewGroup.MarginLayoutParams) vp.getLayoutParams()).leftMargin = dp(72);
+                        vp.requestLayout();
+                    }
                 }
             }
-        }
 
-        // Shift actionBar to the right by 72dp
-        if (actionBar != null && actionBar.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-            ((ViewGroup.MarginLayoutParams) actionBar.getLayoutParams()).leftMargin = dp(72);
-            actionBar.requestLayout();
-        }
+            // Shift actionBar to the right by 72dp
+            if (actionBar != null && actionBar.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
+                ((ViewGroup.MarginLayoutParams) actionBar.getLayoutParams()).leftMargin = dp(72);
+                actionBar.requestLayout();
+            }
 
-        // Populate initial folders
-        refreshFolders();
+            // Populate initial folders
+            refreshFolders();
+        } catch (Throwable t) {
+            FileLog.e(t);
+        }
     }
 
     public void refreshFolders() {
-        if (folderRail == null) return;
-        ArrayList<MessagesController.DialogFilter> filters =
-                MessagesController.getInstance(currentAccount).dialogFilters;
-        folderRail.setFolders(filters);
+        try {
+            if (folderRail == null) return;
+            ArrayList<MessagesController.DialogFilter> filters =
+                    MessagesController.getInstance(currentAccount).dialogFilters;
+            folderRail.setFolders(filters);
+        } catch (Throwable t) {
+            FileLog.e(t);
+        }
     }
 
     public void setSelectedFilter(int filterId) {
-        if (folderRail != null) {
-            folderRail.setSelectedFilter(filterId);
+        try {
+            if (folderRail != null) {
+                folderRail.setSelectedFilter(filterId);
+            }
+        } catch (Throwable t) {
+            FileLog.e(t);
         }
     }
 
